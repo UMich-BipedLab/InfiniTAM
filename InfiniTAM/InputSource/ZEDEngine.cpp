@@ -32,11 +32,13 @@ ZEDEngine::ZEDEngine(const char *calibFilename) :
 	
 	// Set configuration parameters for the ZED
 	sl::InitParameters initParameters;
-	initParameters.camera_resolution = sl::RESOLUTION_HD720;
-	initParameters.depth_mode = sl::DEPTH_MODE_QUALITY;
+	initParameters.camera_resolution = sl::RESOLUTION_HD720;  // RESOLUTION_HD1080
+	//initParameters.camera_fps = 20;  // 30-60
+	initParameters.depth_mode = sl::DEPTH_MODE_MEDIUM;  // ULTRA, QUALITY, MEDIUM, PERFORMANCE
 	initParameters.coordinate_system = sl::COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
-	initParameters.coordinate_units = sl::UNIT_METER;
-	
+	initParameters.coordinate_units = sl::UNIT_METER;  // UNIT_METER
+	//initParameters.depth_minimum_distance = 300;  // default:0.7-20m
+
 	data = new PrivateData;
 
 	// Open the camera
@@ -50,7 +52,7 @@ ZEDEngine::ZEDEngine(const char *calibFilename) :
                 return; // Quit if an error occurred
 	} else {
 		data->res = data->zed->getResolution();
-		data->runtime_parameters.sensing_mode = sl::SENSING_MODE_FILL;
+		data->runtime_parameters.sensing_mode = sl::SENSING_MODE_FILL;  // SENSING_MODE_FILL
 		data->image_zed = new sl::Mat(data->res.width, data->res.height, sl::MAT_TYPE_8U_C4);
 		data->depth_image_zed = new sl::Mat(data->res.width, data->res.height, sl::MAT_TYPE_8U_C4);
 		this->imageSize_rgb = Vector2i(data->res.width, data->res.height);
@@ -78,8 +80,8 @@ void ZEDEngine::getImages(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage
 	// get frames
 	if (data->zed->grab(data->runtime_parameters) == sl::SUCCESS) {
 		// Retrieve the left image, depth image
-		data->zed->retrieveImage(*(data->image_zed), sl::VIEW_LEFT, sl::MEM_CPU, data->res.width, data->res.height);
-		data->zed->retrieveImage(*(data->depth_image_zed), sl::VIEW_DEPTH, sl::MEM_CPU, data->res.width, data->res.height);
+		data->zed->retrieveImage(*(data->image_zed), sl::VIEW_LEFT);
+		data->zed->retrieveImage(*(data->depth_image_zed), sl::VIEW_DEPTH);
 		// copy the rgb and depth value
 		int i = 0;
 		for (size_t r = 0; r < data->res.height; r++) {
