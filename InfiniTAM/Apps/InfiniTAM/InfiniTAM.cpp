@@ -13,6 +13,7 @@
 #include "../../InputSource/LibUVCEngine.h"
 #include "../../InputSource/RealSense2Engine.h"
 #include "../../InputSource/FFMPEGReader.h"
+#include "../../InputSource/ZEDEngine.h"
 #include "../../ITMLib/ITMLibDefines.h"
 #include "../../ITMLib/Core/ITMBasicEngine.h"
 #include "../../ITMLib/Core/ITMBasicSurfelEngine.h"
@@ -144,6 +145,15 @@ static void CreateDefaultImageSource(ImageSourceEngine* & imageSource, IMUSource
 		imageSource = new PicoFlexxEngine(calibFile);
 		if (imageSource->getDepthImageSize().x == 0)
 		{
+			delete imageSource;
+			imageSource = NULL;
+		}
+	}
+
+	if (imageSource == NULL){
+		printf("trying ZED device\n");
+		imageSource = new ZEDEngine(calibFile);
+		if (imageSource->getDepthImageSize().x == 0){
 			delete imageSource;
 			imageSource = NULL;
 		}
